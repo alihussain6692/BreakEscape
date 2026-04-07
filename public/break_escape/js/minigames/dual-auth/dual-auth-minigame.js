@@ -28,7 +28,8 @@ export class DualAuthMinigame extends MinigameScene {
         if (this.headerElement) {
             this.headerElement.style.display = 'none';
         }
-        this.gameContainer.classList.add('da-game-container');
+        this.container.classList.add('da-minigame-container');
+        this.gameContainer.classList.add('da-minigame-game-container');
         this.renderLayout();
     }
 
@@ -44,25 +45,42 @@ export class DualAuthMinigame extends MinigameScene {
     <div class="da-title">NETWORK ISOLATION — DUAL AUTHORISATION REQUIRED</div>
     <div class="da-timer" id="da-timer">05:00</div>
   </div>
+
   <div class="da-panels">
     <div class="da-panel" id="da-panel-itsec">
-      <div class="da-panel-label">IT SECURITY MANAGER</div>
-      <div class="da-panel-name">Ravi Anand</div>
-      <div class="da-display" id="da-display-itsec">____</div>
+      <div class="da-panel-header">
+        <div class="da-panel-label">IT SECURITY MANAGER</div>
+        <div class="da-panel-name">Ravi Anand</div>
+      </div>
+      <div class="da-display" id="da-display-itsec">_ _ _ _</div>
       <div class="da-keypad" id="da-keypad-itsec"></div>
       <div class="da-status pending" id="da-status-itsec">PENDING</div>
     </div>
+
     <div class="da-panel" id="da-panel-clinical">
-      <div class="da-panel-label">CLINICAL ENGINEERING</div>
-      <div class="da-panel-name">David Osei</div>
-      <div class="da-display" id="da-display-clinical">____</div>
+      <div class="da-panel-header">
+        <div class="da-panel-label">CLINICAL ENGINEERING</div>
+        <div class="da-panel-name">David Osei</div>
+      </div>
+      <div class="da-display" id="da-display-clinical">_ _ _ _</div>
       <div class="da-keypad" id="da-keypad-clinical"></div>
       <div class="da-status pending" id="da-status-clinical">PENDING</div>
     </div>
   </div>
-  <button class="da-authorise-btn" id="da-authorise" disabled>
-    AUTHORISE NETWORK ISOLATION
-  </button>
+
+  <div class="da-status-bar">
+    <div class="da-status-text">AWAITING DUAL AUTHORISATION</div>
+    <div class="da-status-indicators">
+      <div class="da-indicator" id="da-ind-itsec">IT-SEC</div>
+      <div class="da-indicator" id="da-ind-clinical">CLIN-ENG</div>
+    </div>
+  </div>
+
+  <div class="da-authorise-wrap">
+    <button class="da-authorise-btn" id="da-authorise" disabled>
+      AUTHORISE NETWORK ISOLATION
+    </button>
+  </div>
 </div>`;
 
         this._buildKeypad('itsec');
@@ -79,20 +97,20 @@ export class DualAuthMinigame extends MinigameScene {
         const container = this.gameContainer.querySelector(`#da-keypad-${side}`);
         if (!container) return;
 
-        // Digits 1-9 in rows of 3, then CLEAR / 0 / SUBMIT
-        const keys = ['1','2','3','4','5','6','7','8','9','CLEAR','0','SUBMIT'];
+        // 1-2-3 / 4-5-6 / 7-8-9 / CLR-0-ENTER
+        const keys = ['1','2','3','4','5','6','7','8','9','CLR','0','ENTER'];
         keys.forEach(k => {
             const btn = document.createElement('button');
-            btn.className = k === 'SUBMIT' ? 'da-key da-key-submit' :
-                            k === 'CLEAR'  ? 'da-key da-key-clear'  :
+            btn.className = k === 'ENTER' ? 'da-key da-key-enter' :
+                            k === 'CLR'   ? 'da-key da-key-clear'  :
                             'da-key';
             btn.textContent = k;
             btn.dataset.side = side;
             btn.dataset.key  = k;
 
             this.addEventListener(btn, 'click', () => {
-                if (k === 'CLEAR')  this.handleClear(side);
-                else if (k === 'SUBMIT') this.handleSubmit(side);
+                if (k === 'CLR')   this.handleClear(side);
+                else if (k === 'ENTER') this.handleSubmit(side);
                 else this.handleDigit(side, k);
             });
 
@@ -104,9 +122,13 @@ export class DualAuthMinigame extends MinigameScene {
         const input = side === 'itsec' ? this.itsecInput : this.clinicalInput;
         const display = this.gameContainer.querySelector(`#da-display-${side}`);
         if (!display) return;
-        // Show entered digits, pad remainder with underscores (up to 4 visible slots)
+        // Show ● for entered digits, _ for remaining slots (always 4 visible)
         const slots = Math.max(4, input.length);
-        display.textContent = input.padEnd(slots, '_');
+        const chars = [];
+        for (let i = 0; i < slots; i++) {
+            chars.push(i < input.length ? '●' : '_');
+        }
+        display.textContent = chars.join(' ');
     }
 
     handleDigit(side, digit) {
@@ -150,6 +172,7 @@ export class DualAuthMinigame extends MinigameScene {
                 display.textContent = 'ACCESS DENIED';
                 display.classList.add('da-display-denied');
             }
+            if (panel)  panel.classList.add('da-panel-denied');
             if (status) {
                 status.textContent = 'ACCESS DENIED';
                 status.className = 'da-status denied';
@@ -159,6 +182,7 @@ export class DualAuthMinigame extends MinigameScene {
                 else this.clinicalInput = '';
                 this._updateDisplay(side);
                 if (display) display.classList.remove('da-display-denied');
+                if (panel)   panel.classList.remove('da-panel-denied');
                 if (status && !this.itsecConfirmed && side === 'itsec') {
                     status.textContent = 'PENDING';
                     status.className = 'da-status pending';
@@ -182,10 +206,28 @@ export class DualAuthMinigame extends MinigameScene {
 
         // Update panel appearance
         if (panel)   panel.classList.add('da-panel-authorised');
-        if (display) display.textContent = 'AUTHORISED';
+        if (display) {
+            display.textContent = 'AUTHORISED';
+            display.classList.add('da-display-authorised');
+        }
         if (status) {
             status.textContent = 'AUTHORISED';
             status.className = 'da-status authorised';
+        }
+
+        // Light up the status bar indicator
+        const indId = side === 'itsec' ? '#da-ind-itsec' : '#da-ind-clinical';
+        const ind = this.gameContainer.querySelector(indId);
+        if (ind) ind.classList.add('lit');
+
+        // Update status bar text
+        const statusText = this.gameContainer.querySelector('.da-status-text');
+        if (statusText) {
+            if (this.itsecConfirmed && this.clinicalConfirmed) {
+                statusText.textContent = 'BOTH AUTHORISATIONS CONFIRMED';
+            } else {
+                statusText.textContent = 'AWAITING SECOND AUTHORISATION';
+            }
         }
 
         // Disable all buttons on this panel
@@ -263,9 +305,9 @@ export class DualAuthMinigame extends MinigameScene {
         const wrap = this.gameContainer.querySelector('.da-panel-wrap');
         if (wrap) {
             const banner = document.createElement('div');
-            banner.className = 'da-timeout-banner';
-            banner.textContent = 'AUTHORISATION TIMED OUT';
-            wrap.appendChild(banner);
+            banner.className = 'da-result-banner failure show';
+            banner.textContent = 'AUTHORISATION TIMED OUT — SESSION EXPIRED';
+            wrap.insertBefore(banner, wrap.firstChild);
         }
 
         setTimeout(() => this.complete(false), 1500);
