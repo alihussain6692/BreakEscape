@@ -9,6 +9,8 @@ VAR siem_escalated = false
 VAR vpn_anomaly_identified = false
 VAR network_isolated = false
 
+VAR itsec_pin = ""
+
 VAR ravi_trust = 0
 VAR topic_siem = false
 VAR topic_vpn = false
@@ -16,7 +18,7 @@ VAR topic_isolation = false
 VAR topic_contractor = false
 VAR gave_itsec_code = false
 
-// Global reads: siem_escalated, vpn_anomaly_identified, network_isolated
+// Global reads: siem_escalated, vpn_anomaly_identified, network_isolated, itsec_pin
 // Global writes: itsec_authorised
 
 // ===========================================
@@ -108,7 +110,7 @@ Ravi: No MFA challenge was triggered. That's a policy violation and a likely ini
     {siem_escalated and vpn_anomaly_identified:
         Ravi: You've done the analysis. You've seen what we're dealing with.
         Ravi: Here's my authorisation code for the dual-auth panel.
-        Ravi: IT security side: <%= itsec_pin %>.
+        Ravi: IT security side: {itsec_pin}.
         Ravi: Don't share it. And get David Osei's code too — you need both.
         ~ gave_itsec_code = true
         #set_global:itsec_authorised:true

@@ -50,9 +50,9 @@
 require 'base64'
 
 # Authorization codes — randomised per session so players cannot share solutions
-itsec_pin    = @random_pin    # Ravi's IT Security code (given via NPC dialogue)
-clinical_pin = @random_pin    # David's Clinical Engineering code (given after safety case assessment)
-backup_pin   = @random_pin    # Backup console placeholder PIN (replaced by MG-07)
+itsec_pin    = rand(1000..9999).to_s    # Ravi's IT Security code (given via NPC dialogue)
+clinical_pin = rand(1000..9999).to_s    # David's Clinical Engineering code (given after safety case assessment)
+backup_pin   = rand(1000..9999).to_s    # Backup console placeholder PIN (replaced by MG-07)
 %>
 {
   "scenario_brief": "Day 2, 07:30. You have been called in to help manage a Major Incident at Northgate General Hospital NHS Trust. Ransomware deployed at 22:15 Monday night has encrypted workstations across the enterprise network — and reached part of the clinical zone. Ward 7 central monitoring has been offline since 22:30. The IT team has been awake all night. You are not here to investigate how it happened. You are here to manage what it means right now.",
@@ -114,7 +114,10 @@ backup_pin   = @random_pin    # Backup console placeholder PIN (replaced by MG-0
     "debrief_complete": false,
     "sharma_visible": false,
 
-    "ransomware_deployed": true
+    "ransomware_deployed": true,
+
+    "itsec_pin": "<%= itsec_pin %>",
+    "clinical_pin": "<%= clinical_pin %>"
   },
 
   "narrator": {
@@ -1265,22 +1268,9 @@ backup_pin   = @random_pin    # Backup console placeholder PIN (replaced by MG-0
           "name": "Network Isolation — Dual Authorisation Panel",
           "takeable": false,
           "locked": true,
-          "lockType": "pin",
-          "requires": "<%= clinical_pin %>",
-<%# TODO[MINIGAME]: Replace lockType:pin placeholder with lockType:dual_auth (MG-11) once built.
-    MG-11 (HTML/CSS): two PIN entry panels side by side.
-      LEFT panel  — IT SECURITY MANAGER (Ravi Anand): accepts itsec_pin
-                    sets itsec_authorised=true; badge changes from PENDING to AUTHORISED
-      RIGHT panel — CLINICAL ENGINEERING (David Osei): accepts clinical_pin
-                    sets clinical_eng_authorised=true; badge changes
-    Central AUTHORISE NETWORK ISOLATION button activates only when BOTH panels show AUTHORISED.
-    5-minute countdown timer; timeout sets dual_auth_failed=true.
-    PLAYER FLOW: get itsec_pin from Ravi (IT Office) → get clinical_pin from David (this room,
-    after safety case assessment) → return here → enter both codes → press AUTHORISE.
-    On AUTHORISE: sets network_isolation_authorised=true, network_isolated=true.
-    CURRENT PLACEHOLDER: uses clinical_pin only (one-panel PIN lock). Both codes required in MG-11.
-    The AUTHORISE action fires onPickup of the contents notes item below.
-    See: game_design/minigame_planning.md — MG-11: Governance & Dual-Authorisation Panel %>
+          "lockType": "dual_auth",
+          "itsec_pin": "<%= itsec_pin %>",
+          "clinical_pin": "<%= clinical_pin %>",
           "postitNote": "IT Security + Clinical Engineering sign-off both required",
           "showPostit": true,
           "observations": "A wall-mounted panel with two PIN keypads side by side. Left keypad: IT SECURITY MANAGER. Right keypad: CLINICAL ENGINEERING MANAGER. A large illuminated button in the centre reads AUTHORISE NETWORK ISOLATION.",

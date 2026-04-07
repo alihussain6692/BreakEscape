@@ -21,6 +21,7 @@ export { FlagStationMinigame } from './flag-station/flag-station-minigame.js?v=6
 export { RansomwareDisplayMinigame } from './ransomware-display/ransomware-display-minigame.js';
 export { SiemDashboardMinigame } from './siem/siem-dashboard-minigame.js';
 export { NetworkSegmentationMapMinigame, startNetworkSegmentationMapMinigame } from './network-segmentation-map/network-segmentation-map-minigame.js';
+export { DualAuthMinigame } from './dual-auth/dual-auth-minigame.js';
 
 // Initialize the global minigame framework for backward compatibility
 import { MinigameFramework } from './framework/minigame-manager.js';
@@ -95,6 +96,9 @@ import { RansomwareDisplayMinigame } from './ransomware-display/ransomware-displ
 // Import the network segmentation map minigame
 import { NetworkSegmentationMapMinigame, startNetworkSegmentationMapMinigame } from './network-segmentation-map/network-segmentation-map-minigame.js';
 
+// Import the dual-auth panel minigame
+import { DualAuthMinigame } from './dual-auth/dual-auth-minigame.js';
+
 // Register minigames
 MinigameFramework.registerScene('lockpicking', LockpickingMinigamePhaser); // Use Phaser version as default
 MinigameFramework.registerScene('lockpicking-phaser', LockpickingMinigamePhaser); // Keep explicit phaser name
@@ -115,6 +119,7 @@ MinigameFramework.registerScene('flag-station', FlagStationMinigame);
 MinigameFramework.registerScene('ransomware-display', RansomwareDisplayMinigame);
 MinigameFramework.registerScene('siem-dashboard', SiemDashboardMinigame);
 MinigameFramework.registerScene('network-segmentation-map', NetworkSegmentationMapMinigame);
+MinigameFramework.registerScene('dual-auth', DualAuthMinigame);
 
 // Make minigame functions available globally
 window.startNotesMinigame = startNotesMinigame;

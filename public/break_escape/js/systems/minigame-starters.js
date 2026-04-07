@@ -649,6 +649,32 @@ export function startSiemMinigame(lockable, callback, options = {}) {
     window.MinigameFramework.startMinigame('siem-dashboard', null, params);
 }
 
+export function startDualAuthMinigame(lockable, type, callback) {
+    console.log('Starting dual-auth minigame for', type, { lockable });
+
+    if (!window.MinigameFramework) {
+        console.error('MinigameFramework not available');
+        window.gameAlert('Dual authorisation panel unavailable.', 'error', 'Error', 3000);
+        if (callback) callback(false, { reason: 'framework_unavailable' });
+        return;
+    }
+
+    if (!window.MinigameFramework.mainGameScene) {
+        window.MinigameFramework.init(window.game);
+    }
+
+    window.MinigameFramework.startMinigame('dual-auth', null, {
+        title: 'Dual Authorisation Panel',
+        lockable,
+        type,
+        showCancel: true,
+        cancelText: 'Close',
+        onComplete: (success, result) => {
+            if (callback) callback(success, result);
+        }
+    });
+}
+
 // Export for global access
 window.startLockpickingMinigame = startLockpickingMinigame;
 window.startKeySelectionMinigame = startKeySelectionMinigame;
@@ -656,4 +682,5 @@ window.startPinMinigame = startPinMinigame;
 window.startPasswordMinigame = startPasswordMinigame;
 window.startRansomwareDisplayMinigame = startRansomwareDisplayMinigame;
 window.startSiemMinigame = startSiemMinigame;
+window.startDualAuthMinigame = startDualAuthMinigame;
 

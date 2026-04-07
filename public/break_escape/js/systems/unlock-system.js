@@ -12,7 +12,7 @@ import { DOOR_ALIGN_OVERLAP } from '../utils/constants.js';
 // create separate module instances with separate rooms objects, causing state to diverge.
 import { rooms } from '../core/rooms.js?v=25';
 import { unlockDoor } from './doors.js?v=6';
-import { startLockpickingMinigame, startKeySelectionMinigame, startPinMinigame, startPasswordMinigame, startRansomwareDisplayMinigame } from './minigame-starters.js';
+import { startLockpickingMinigame, startKeySelectionMinigame, startPinMinigame, startPasswordMinigame, startRansomwareDisplayMinigame, startDualAuthMinigame } from './minigame-starters.js';
 import { playUISound } from './ui-sounds.js?v=1';
 
 // Helper function to notify server of unlock and get room/container data
@@ -490,6 +490,15 @@ export function handleUnlock(lockable, type) {
                 console.log('NO RFID CARDS OR CLONER AVAILABLE');
                 window.gameAlert('Requires RFID keycard', 'error', 'Access Denied', 4000);
             }
+            break;
+
+        case 'dual_auth':
+            console.log('DUAL AUTHORISATION PANEL TRIGGERED');
+            startDualAuthMinigame(lockable, type, (success, result) => {
+                if (success) {
+                    unlockTarget(lockable, type, lockable.layer, result?.serverResponse);
+                }
+            });
             break;
 
         default:
