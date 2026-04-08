@@ -11,6 +11,8 @@ VAR vpn_anomaly_identified = false
 VAR network_isolated = false
 VAR drug_tamper_found = false
 
+VAR clinical_pin = ""
+
 VAR david_trust = 0
 VAR topic_safety_case = false
 VAR topic_dual_auth = false
@@ -19,7 +21,7 @@ VAR gave_clinical_code = false
 VAR hc001_assessed = false
 VAR hc003_assessed = false
 
-// Global reads: siem_escalated, vpn_anomaly_identified, network_isolated, drug_tamper_found
+// Global reads: siem_escalated, vpn_anomaly_identified, network_isolated, drug_tamper_found, clinical_pin
 // Global writes: clinical_eng_authorised, safety_claim_hc001_assessed, safety_claim_hc003_assessed
 
 // ===========================================
@@ -98,7 +100,7 @@ David: But look at the network diagram in the IT office — those dual-homed wor
 {not gave_clinical_code:
     {hc001_assessed:
         David: You've engaged with the safety case. That's what I needed to see.
-        David: My authorisation code for the dual-auth panel — clinical side: <%= clinical_pin %>.
+        David: My authorisation code for the dual-auth panel — clinical side: {clinical_pin}.
         David: Use it with Ravi's IT security code. Both are required.
         David: And David: document that CLAIM-HC-001 was assessed before activation.
         ~ gave_clinical_code = true
